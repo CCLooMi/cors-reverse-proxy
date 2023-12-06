@@ -1,0 +1,6 @@
+dist/
+
+*.exe
+.idea
+/static/public/wios/
+static/upload
