@@ -12,5 +12,4 @@ IF EXIST %cd%\conf\config.yaml (
 echo build
 go build -o %cd%\dist\cors-revers-proxy.exe .\main
 
-echo=
-pause
+echo done
