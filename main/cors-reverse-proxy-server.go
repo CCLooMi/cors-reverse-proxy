@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"strconv"
 	"sync"
 	"test/conf"
 )
@@ -88,7 +87,11 @@ func main() {
 		proxy.ServeHTTP(c.Writer, c.Request)
 	})
 
-	err = r.Run(":" + strconv.Itoa(conf.Cfg.Port))
+	if conf.Cfg.EnableHttps {
+		err = http.ListenAndServeTLS(":"+conf.Cfg.Port, conf.Cfg.CertFile, conf.Cfg.KeyFile, r)
+	} else {
+		err = r.Run(":" + conf.Cfg.Port)
+	}
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 	}

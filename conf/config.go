@@ -12,10 +12,13 @@ type HostConf struct {
 
 // Config 包含应用程序的所有配置信息
 type Config struct {
-	Header   map[string]string   `yaml:"header"`
-	LogLevel string              `yaml:"log_level"`
-	Port     int                 `yaml:"port"`
-	HostConf map[string]HostConf `yaml:"host_conf"`
+	Header      map[string]string   `yaml:"header"`
+	LogLevel    string              `yaml:"log_level"`
+	Port        string              `yaml:"port"`
+	EnableHttps bool                `yaml:"enable_https"`
+	CertFile    string              `yaml:"https_cert_file"`
+	KeyFile     string              `yaml:"https_key_file"`
+	HostConf    map[string]HostConf `yaml:"host_conf"`
 }
 
 func LoadConfig(configFile string) (*Config, error) {

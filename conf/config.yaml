@@ -4,6 +4,9 @@ header:
   Access-Control-Allow-Headers: "*"
 log_level: debug
 port: 9080
+enable_https: true
+https_cert_file: conf/cert/cert.pem
+https_key_file: conf/cert/key.pem
 host_conf:
   api.xxx.com:
     header:
