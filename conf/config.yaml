@@ -4,3 +4,7 @@ header:
   Access-Control-Allow-Headers: "*"
 log_level: debug
 port: 9080
+host_conf:
+  api.xxx.com:
+    header:
+      Authorization: "Bearer {token}"

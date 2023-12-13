@@ -6,11 +6,16 @@ import (
 	"os"
 )
 
+type HostConf struct {
+	Header map[string]string `yaml:"header"`
+}
+
 // Config 包含应用程序的所有配置信息
 type Config struct {
-	Header   map[string]string `yaml:"header"`
-	LogLevel string            `yaml:"log_level"`
-	Port     int               `yaml:"port"`
+	Header   map[string]string   `yaml:"header"`
+	LogLevel string              `yaml:"log_level"`
+	Port     int                 `yaml:"port"`
+	HostConf map[string]HostConf `yaml:"host_conf"`
 }
 
 func LoadConfig(configFile string) (*Config, error) {

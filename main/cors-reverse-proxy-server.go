@@ -50,6 +50,12 @@ func main() {
 			return
 		}
 
+		// Copy headers from host_conf
+		hostConfHds := conf.Cfg.HostConf[targetURL.Host].Header
+		for key, value := range hostConfHds {
+			c.Request.Header.Set(key, value)
+		}
+
 		// Create a reverse proxy instance
 		// last "/" is very important,if not set Path!
 		proxyURL, _ := url.Parse(targetURL.Scheme + "://" + targetURL.Host)
