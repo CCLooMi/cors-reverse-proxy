@@ -23,18 +23,13 @@ func main() {
 	r := gin.Default()
 	// Set CORS headers
 	r.Use(func(c *gin.Context) {
-		for key, value := range conf.Cfg.Header {
-			c.Writer.Header().Set(key, value)
-		}
-		c.Writer.Header().Set("Access-Control-Allow-Methods", c.Request.Method)
-		c.Writer.Header().Set("Access-Control-Allow-Origin", c.Request.Header.Get("Origin"))
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(200)
 			return
 		}
 		c.Next()
 	})
+
 	// Create a map to store the reverse proxy objects
 	proxyMap := make(map[string]*httputil.ReverseProxy)
 	var proxyMapMutex sync.Mutex
@@ -67,16 +62,21 @@ func main() {
 		proxy, ok := proxyMap[targetURL.String()]
 		if !ok {
 			proxy = httputil.NewSingleHostReverseProxy(proxyURL)
+			proxy.ModifyResponse = func(r *http.Response) error {
+				for key, value := range conf.Cfg.Header {
+					r.Header.Set(key, value)
+				}
+				r.Header.Set("Access-Control-Allow-Methods", c.Request.Method)
+				r.Header.Set("Access-Control-Allow-Origin", c.Request.Header.Get("Origin"))
+				hv := r.Header.Get("Access-Control-Allow-Credentials")
+				if len(hv) == 0 {
+					r.Header.Set("Access-Control-Allow-Credentials", "true")
+				}
+				return nil
+			}
 			proxyMap[targetURL.Host] = proxy
 		}
 		proxyMapMutex.Unlock()
-
-		// Copy headers from the incoming request to the proxy request
-		for key, values := range c.Request.Header {
-			for _, value := range values {
-				c.Request.Header.Set(key, value)
-			}
-		}
 		// Modify the request before it's sent to the target server
 		c.Request.Host = targetURL.Host
 		c.Request.URL.Scheme = targetURL.Scheme
@@ -85,7 +85,6 @@ func main() {
 		c.Request.RequestURI = targetURL.Path + "?" + c.Request.URL.RawQuery
 		c.Request.Header.Set("X-Forwarded-Host", c.Request.Header.Get("Host"))
 		c.Request.Header.Set("Referer", corsUrl)
-
 		// Serve the request using the reverse proxy
 		proxy.ServeHTTP(c.Writer, c.Request)
 	})
