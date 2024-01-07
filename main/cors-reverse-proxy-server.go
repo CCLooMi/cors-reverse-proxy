@@ -24,6 +24,13 @@ func main() {
 	// Set CORS headers
 	r.Use(func(c *gin.Context) {
 		if c.Request.Method == "OPTIONS" {
+			hd := c.Writer.Header()
+			for key, value := range conf.Cfg.Header {
+				hd.Set(key, value)
+			}
+			hd.Set("Access-Control-Allow-Methods", c.Request.Method)
+			hd.Set("Access-Control-Allow-Origin", c.Request.Header.Get("Origin"))
+			hd.Set("Access-Control-Allow-Credentials", "true")
 			c.AbortWithStatus(200)
 			return
 		}
@@ -61,6 +68,7 @@ func main() {
 		proxyMapMutex.Lock()
 		proxy, ok := proxyMap[targetURL.String()]
 		if !ok {
+			//domain := removePortFromDomain(c.Request.Host)
 			proxy = httputil.NewSingleHostReverseProxy(proxyURL)
 			proxy.ModifyResponse = func(r *http.Response) error {
 				for key, value := range conf.Cfg.Header {
@@ -72,6 +80,12 @@ func main() {
 				if len(hv) == 0 {
 					r.Header.Set("Access-Control-Allow-Credentials", "true")
 				}
+				//setCookies := r.Header.Values("Set-Cookie")
+				//for idx, cookie := range setCookies {
+				//	fmt.Println(domain, cookie)
+				//	cookie = strings.Replace(cookie, "SameSite=Lax", "SameSite=None", 1)
+				//	setCookies[idx] = cookie + "; Secure; Domain=" + domain
+				//}
 				return nil
 			}
 			proxyMap[targetURL.Host] = proxy
@@ -98,3 +112,8 @@ func main() {
 		fmt.Println("Error starting server:", err)
 	}
 }
+
+//func removePortFromDomain(domain string) string {
+//	parts := strings.Split(domain, ":")
+//	return parts[0]
+//}

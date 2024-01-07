@@ -3,7 +3,7 @@ header:
   Access-Control-Allow-Headers: "Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization"
 log_level: debug
 port: 9080
-enable_https: true
+enable_https: false
 https_cert_file: conf/cert/cert.pem
 https_key_file: conf/cert/key.pem
 host_conf:
